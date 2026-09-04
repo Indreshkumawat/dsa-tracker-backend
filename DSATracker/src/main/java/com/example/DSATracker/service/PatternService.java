@@ -3,6 +3,8 @@ package com.example.DSATracker.service;
 import com.example.DSATracker.dto.PatternDto;
 import com.example.DSATracker.dto.QuestionDto;
 import com.example.DSATracker.dto.SubPatternDto;
+import com.example.DSATracker.entity.Pattern;
+import com.example.DSATracker.entity.SubPattern;
 import com.example.DSATracker.repository.PatternRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

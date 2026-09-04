@@ -1,5 +1,7 @@
 package com.example.DSATracker.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -9,26 +11,23 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
-@Table(name = "sub_patterns")
 public class SubPattern {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(nullable = false)
     private String name;
-
-    @Column(name = "order_num")
     private Integer orderNum;
 
     // Many SubPatterns belong to one Pattern
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "pattern_id", nullable = false)
+    @ManyToOne
+    @JoinColumn(name = "pattern_id")
+    @JsonBackReference
     private Pattern pattern;
 
     // A SubPattern has many Questions
-    @OneToMany(mappedBy = "subPattern", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "subPattern", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<Question> questions;
 
     // Getters and Setters

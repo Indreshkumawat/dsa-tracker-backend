@@ -1,5 +1,6 @@
 package com.example.DSATracker.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -7,7 +8,6 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "questions")
 public class Question {
 
     @Id
@@ -17,15 +17,14 @@ public class Question {
     @Column(nullable = false)
     private String title;
 
-    @Column(name = "leetcode_url", nullable = false)
     private String leetcodeUrl;
 
-    @Column(nullable = false)
     private String difficulty; // "Easy", "Medium", "Hard"
 
     // Many Questions belong to one SubPattern
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "sub_pattern_id", nullable = false)
+    @ManyToOne
+    @JoinColumn(name = "sub_pattern_id")
+    @JsonBackReference
     private SubPattern subPattern;
 
     // Getters and Setters
