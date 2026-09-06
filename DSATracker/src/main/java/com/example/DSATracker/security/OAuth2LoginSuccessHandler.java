@@ -45,7 +45,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         String token = jwtService.generateToken(user);
 
         // 3. Redirect back to React frontend with the token
-        String frontendRedirectUrl = "http://localhost:3000/oauth2/redirect?token=" + token;
+        String frontendRedirectUrl = "http://localhost:5173/oauth2/redirect?token=" + token;
         response.sendRedirect(frontendRedirectUrl);
     }
 }
