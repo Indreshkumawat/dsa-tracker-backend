@@ -27,11 +27,17 @@ public class UserProgress {
     @Column(name = "is_completed", nullable = false)
     private boolean isCompleted = false;
 
-    @Column(name = "is_bookmarked", nullable = false)
-    private boolean isBookmarked = false;
+//    @Column(name = "is_bookmarked", nullable = false)
+//    private boolean isBookmarked = false;
+
+    @Column(name = "user_difficulty")
+    private String userDifficulty;
 
     @Column(columnDefinition = "TEXT")
     private String notes;
+
+    @Column(name = "completed_at")
+    private java.time.LocalDate completedAt;
 
     // Getters and Setters
 }

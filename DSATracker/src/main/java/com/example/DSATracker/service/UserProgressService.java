@@ -1,6 +1,6 @@
 package com.example.DSATracker.service;
 
-import com.example.DSATracker.dto.ProgressUpdateRequest;
+import com.example.DSATracker.dto.ProgressDto;
 import com.example.DSATracker.entity.Question;
 import com.example.DSATracker.entity.User;
 import com.example.DSATracker.entity.UserProgress;
@@ -10,6 +10,9 @@ import com.example.DSATracker.repository.UserProgressRepository;
 import com.example.DSATracker.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class UserProgressService {
@@ -26,16 +29,33 @@ public class UserProgressService {
         this.questionRepository = questionRepository;
     }
 
-    @Transactional
-    public void updateProgress(String email, Long questionId, ProgressUpdateRequest request) {
-        // 1. Fetch the user and the question
+    // New GET method to supply the frontend on load
+    @Transactional(readOnly = true)
+    public List<ProgressDto> getUserProgress(String email) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("User with email " + email + " not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-        Question question = questionRepository.findById(questionId)
-                .orElseThrow(() -> new ResourceNotFoundException("Question with ID " + questionId + " not found"));
-        // 2. Find existing progress, or create a new one if it doesn't exist
-        UserProgress progress = progressRepository.findByUserIdAndQuestionId(user.getId(), questionId)
+        return progressRepository.findByUserId(user.getId()).stream()
+                .map(p -> new ProgressDto(
+                        p.getQuestion().getId(),
+                        p.isCompleted(),
+                        //p.isBookmarked(), // Maps DB field to frontend 'revise' state
+                        p.getUserDifficulty(),
+                        p.getNotes(),
+                        p.getCompletedAt()
+                ))
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void updateProgress(String email, ProgressDto request) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        Question question = questionRepository.findById(request.questionId())
+                .orElseThrow(() -> new ResourceNotFoundException("Question not found"));
+
+        UserProgress progress = progressRepository.findByUserIdAndQuestionId(user.getId(), question.getId())
                 .orElseGet(() -> {
                     UserProgress newProgress = new UserProgress();
                     newProgress.setUser(user);
@@ -43,18 +63,24 @@ public class UserProgressService {
                     return newProgress;
                 });
 
-        // 3. Update only the fields that were provided in the request
-        if (request.isCompleted() != null) {
-            progress.setCompleted(request.isCompleted());
+        if (request.completed() != null) {
+            progress.setCompleted(request.completed());
+            if (request.completed()) {
+                progress.setCompletedAt(java.time.LocalDate.now());
+            } else {
+                progress.setCompletedAt(null);
+            }
         }
-        if (request.isBookmarked() != null) {
-            progress.setBookmarked(request.isBookmarked());
+       // if (request.revise() != null) progress.setBookmarked(request.revise());
+        if (request.userDifficulty() != null) {
+            if (request.userDifficulty().equals("NONE")) {
+                progress.setUserDifficulty(null); // Clears it if they cycle past Hard
+            } else {
+                progress.setUserDifficulty(request.userDifficulty());
+            }
         }
-        if (request.notes() != null) {
-            progress.setNotes(request.notes());
-        }
+        if (request.notes() != null) progress.setNotes(request.notes());
 
-        // 4. Save back to PostgreSQL
         progressRepository.save(progress);
     }
 }
