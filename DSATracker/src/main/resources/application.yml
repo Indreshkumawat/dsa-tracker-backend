@@ -1,7 +1,10 @@
+server:
+  port: ${PORT:8080}
+
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/dsa_tracker
-    username: postgres
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
   jpa:
     hibernate:
@@ -26,3 +29,10 @@ jwt:
 logging:
   level:
     org.springframework.security: DEBUG
+
+
+# Prepare CORS for the live frontend
+cors:
+  allowed:
+    origin: ${FRONTEND_URL}
+

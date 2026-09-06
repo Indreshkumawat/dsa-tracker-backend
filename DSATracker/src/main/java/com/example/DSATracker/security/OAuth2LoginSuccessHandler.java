@@ -4,6 +4,7 @@ import com.example.DSATracker.entity.User;
 import com.example.DSATracker.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -16,6 +17,9 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
     private final UserRepository userRepository;
     // Assume you have a JwtService to generate tokens
     private final JwtService jwtService;
+
+    @Value("${cors.allowed.origin}") // Inject your frontend URL from application.yml
+    private String frontendUrl;  //"http://localhost:5173"
 
     public OAuth2LoginSuccessHandler(UserRepository userRepository, JwtService jwtService) {
         this.userRepository = userRepository;
@@ -45,7 +49,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         String token = jwtService.generateToken(user);
 
         // 3. Redirect back to React frontend with the token
-        String frontendRedirectUrl = "http://localhost:5173/oauth2/redirect?token=" + token;
+        String frontendRedirectUrl = frontendUrl +"/oauth2/redirect?token=" + token;
         response.sendRedirect(frontendRedirectUrl);
     }
 }
