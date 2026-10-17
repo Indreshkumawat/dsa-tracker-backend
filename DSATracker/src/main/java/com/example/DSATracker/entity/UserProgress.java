@@ -4,10 +4,13 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-@Entity
+
 @Getter
 @Setter
-@Table(name = "user_progress")
+@Entity
+@Table(name = "user_progress", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"user_id", "question_id"})
+})
 public class UserProgress {
 
     @Id
