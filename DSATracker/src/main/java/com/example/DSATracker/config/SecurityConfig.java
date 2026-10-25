@@ -50,6 +50,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // Explicitly permit preflight requests
                         .requestMatchers("/", "/login/**", "/oauth2/**").permitAll() // Public URLs
+                        .requestMatchers("/api/health").permitAll()
                         .anyRequest().authenticated() // Protect everything else
                 )
                 .exceptionHandling(exceptions -> exceptions
